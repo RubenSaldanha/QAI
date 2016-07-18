@@ -20,9 +20,46 @@ namespace QAI
     /// </summary>
     public partial class MainWindow : Window
     {
+        public enum ManagerState { Menu, Playing }
+
+        public ManagerState state;
+
         public MainWindow()
         {
             InitializeComponent();
+
+            state = ManagerState.Menu;
+
+            List<AIDefinition> allAIs = getPossibleAIs();
+
+            player1AIs.ItemsSource = allAIs;
+            player2AIs.ItemsSource = allAIs;
+
+            StartGameButton.Click += StartGameButton_Click;
         }
+
+        void StartGameButton_Click(object sender, RoutedEventArgs e)
+        {
+            state = ManagerState.Playing;
+            ManagerInterface.SelectedIndex = 1;
+
+            //Start Game
+        }
+
+        List<AIDefinition> getPossibleAIs()
+        {
+            List<AIDefinition> allAIs = new List<AIDefinition>();
+            Func<QuatroPlayer> creator;
+
+            //adde new AIs here 
+            //creator = delegate{ return new AIS.XXX.XXX();};
+            //allAIs.Add(new AIDefinition( creator , "XXX"));
+
+            creator = delegate{ return new AIS.Human.Human();};
+            allAIs.Add(new AIDefinition( creator , "Human"));
+
+            return allAIs;
+        }        
     }
+
 }

@@ -3,6 +3,31 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="MainWindow" Height="350" Width="525">
     <Grid>
-        
+        <TabControl x:Name="ManagerInterface" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+            <TabItem Header="Menu" Visibility="Visible">
+                <Grid Background="#FFE5E5E5">
+                    <DockPanel>
+                        <Button x:Name="StartGameButton" DockPanel.Dock="Top" Content="Start Game" />
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="40"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <ListBox x:Name="player1AIs" Grid.Column="0"/>
+                            <Label Content="vs" Grid.Column="1" />
+                            <ListBox x:Name="player2AIs" Grid.Column="2" />
+                        </Grid>
+                    </DockPanel>
+                </Grid>
+            </TabItem>
+            <TabItem Header="InGame" Visibility="Visible">
+                <Grid Background="#FFE5E5E5">
+                    <Label Content="GAME MANAGER SHOWS HERE, players have their own windows appear for them to play." />
+                </Grid>
+            </TabItem>
+        </TabControl>
+
     </Grid>
 </Window>
