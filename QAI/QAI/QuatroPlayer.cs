@@ -15,9 +15,9 @@ using System.Windows.Shapes;
 
 namespace QAI
 {
-    abstract class QuatroPlayer
+    public abstract class QuatroPlayer
     {
 
-        public abstract int play(QuatroField field);
+        public abstract int playI(QuatroField field, InterfaceNotifier notifier);
     }
 }

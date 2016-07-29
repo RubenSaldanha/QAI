@@ -24,7 +24,7 @@
             </TabItem>
             <TabItem Header="InGame" Visibility="Visible">
                 <Grid Background="#FFE5E5E5">
-                    <Label Content="GAME MANAGER SHOWS HERE, players have their own windows appear for them to play." />
+                    <UserControl x:Name="GameControl" />
                 </Grid>
             </TabItem>
         </TabControl>

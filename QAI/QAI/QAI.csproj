@@ -55,19 +55,13 @@
     </ApplicationDefinition>
     <Compile Include="AIDefinition.cs" />
     <Compile Include="AIS\Human\Human.cs" />
-    <Compile Include="AIS\Human\HumanInterface.xaml.cs">
-      <DependentUpon>HumanInterface.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="InterfaceNotifier.cs" />
     <Compile Include="QuatroField.cs" />
     <Compile Include="QuatroGame.cs" />
     <Compile Include="QuatroInterface.xaml.cs">
       <DependentUpon>QuatroInterface.xaml</DependentUpon>
     </Compile>
     <Compile Include="QuatroPlayer.cs" />
-    <Page Include="AIS\Human\HumanInterface.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

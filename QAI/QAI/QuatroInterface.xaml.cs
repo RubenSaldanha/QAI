@@ -22,9 +22,15 @@ namespace QAI
     {
         QuatroGame game;
 
-        public QuatroInterface()
+        QuatroPlayer player1;
+        QuatroPlayer player2;
+
+        public QuatroInterface(QuatroPlayer player1, QuatroPlayer player2)
         {
             InitializeComponent();
+
+            this.player1 = player1;
+            this.player2 = player2;
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace QAI
 {
-    class QuatroField
+    public class QuatroField
     {
         public int[,] field;
 

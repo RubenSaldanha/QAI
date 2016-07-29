@@ -24,13 +24,15 @@ namespace QAI
 
         public ManagerState state;
 
+        List<AIDefinition> allAIs;
+
         public MainWindow()
         {
             InitializeComponent();
 
             state = ManagerState.Menu;
 
-            List<AIDefinition> allAIs = getPossibleAIs();
+            allAIs = getPossibleAIs();
 
             player1AIs.ItemsSource = allAIs;
             player2AIs.ItemsSource = allAIs;
@@ -43,7 +45,9 @@ namespace QAI
             state = ManagerState.Playing;
             ManagerInterface.SelectedIndex = 1;
 
-            //Start Game
+            QuatroPlayer player1 = allAIs[player1AIs.SelectedIndex].creator();
+            QuatroPlayer player2 = allAIs[player2AIs.SelectedIndex].creator();
+            GameControl = new QuatroInterface(player1, player2);
         }
 
         List<AIDefinition> getPossibleAIs()

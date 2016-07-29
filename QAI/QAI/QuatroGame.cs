@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace QAI
 {
-    class QuatroGame
+    public class QuatroGame
     {
         QuatroField field;
         public bool finished;
