@@ -27,8 +27,12 @@ namespace QAI
         QuatroPlayer player1;
         QuatroPlayer player2;
 
+        int player1Score;
+        int player2Score;
+
         System.Windows.Threading.DispatcherTimer dispatcherTimer;
         int turnTime;
+        int currentTurnTime;
 
         BackgroundWorker AIworker;
 
@@ -43,9 +47,13 @@ namespace QAI
         BitmapImage p1Image;
         BitmapImage p2Image;
 
+        List<int> ReviewPlays;
+
         public QuatroInterface(QuatroPlayer player1, QuatroPlayer player2)
         {
             InitializeComponent();
+
+            turnTime = 1000;
 
             this.player1 = player1;
             this.player2 = player2;
@@ -84,6 +92,9 @@ namespace QAI
             p1Image = new BitmapImage(new Uri("s1.png", UriKind.Relative));
             p2Image = new BitmapImage(new Uri("s2.png", UriKind.Relative));
 
+            player1ScoreLabel.Content = "0";
+            player2ScoreLabel.Content = "0";
+
 
             //time mechanics
             dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
@@ -98,40 +109,64 @@ namespace QAI
             field = new QuatroField();
             interactionGrid.Children.Clear();
             UpdateFieldUI();
+            ReviewPlays = new List<int>();
+
+            player1.StartGame();
+            player2.StartGame();
 
             NextGameStep();
         }
 
         void NextGameStep()
         {
+            UpdateFieldUI();
+
+            if (field.State == QuatroField.GameState.Playing)
+            {
+                mainLabel.Content = "Player " + field.PlayerTurn + " Turn";
+                KickStartNextPlayer();
+            }
+            else
+                EndGame();
+        }
+
+        void EndGame()
+        {
             switch (field.State)
             {
-                case QuatroField.GameState.Playing:
-                    UpdateFieldUI();
-                    mainLabel.Content = "Player " + field.PlayerTurn + " Turn";
-                    KickStartNextPlayer();
-                    break;
                 case QuatroField.GameState.Player1Victory:
-                    UpdateFieldUI();
                     mainLabel.Content = "Player 1 Wins!!!";
-                    ShowEndGameInteraction();
+                    player1Score++;
+                    player1ScoreLabel.Content = player1Score;
                     break;
                 case QuatroField.GameState.Player2Victory:
-                    UpdateFieldUI();
                     mainLabel.Content = "Player 2 Wins!!!";
-                    ShowEndGameInteraction();
+                    player2Score++;
+                    player2ScoreLabel.Content = player2Score;
                     break;
                 case QuatroField.GameState.Tie:
-                    UpdateFieldUI();
                     mainLabel.Content = "--- Tie ---";
-                    ShowEndGameInteraction();
                     break;
             }
+
+            player1.EndGame();
+            player2.EndGame();
+
+            ShowEndGameInteraction();
+        }
+
+        void Quit()
+        {
+            player1.Destroy();
+            player2.Destroy();
+
+            if (Finished != null)
+                Finished();
         }
 
         void KickStartNextPlayer()
         {
-            turnTime = 500;
+            currentTurnTime = turnTime;
             AIworker = new BackgroundWorker();
             AIworker.WorkerSupportsCancellation = true;
             AIworker.DoWork += PlayerPlay;
@@ -143,16 +178,16 @@ namespace QAI
 
         private void UpdateTimer(object sender, EventArgs e)
         {
-            turnTime--;
-            if (turnTime < 0)
-                turnTime = 0;
+            currentTurnTime--;
+            if (currentTurnTime < 0)
+                currentTurnTime = 0;
 
-            String centiSeconds = ("" + turnTime % 100).PadLeft(2,'0');
-            String seconds = ("" + (turnTime / 100) % 60).PadLeft(2,'0');;
-            String minutes = ("" + ((turnTime / 100) / 60) % 60).PadLeft(2,'0');;
+            String centiSeconds = ("" + currentTurnTime % 100).PadLeft(2,'0');
+            String seconds = ("" + (currentTurnTime / 100) % 60).PadLeft(2,'0');;
+            String minutes = ("" + ((currentTurnTime / 100) / 60) % 60).PadLeft(2,'0');;
             Timer.Content = "" + minutes + ":" + seconds + ":" + centiSeconds;
 
-            if(turnTime == 0)
+            if(currentTurnTime == 0)
             {
                 //TODO Proper Locks, play can happen at same time than cancelation
                 AIworker.CancelAsync();
@@ -194,14 +229,6 @@ namespace QAI
             NextGameStep();
         }
 
-        void slot_Click(object sender, RoutedEventArgs e)
-        {
-            Button slot = sender as Button;
-            GameCoords coords = slot.DataContext as GameCoords;
-
-            notifier.setClick(coords.line, coords.column);
-        }
-
         void UpdateFieldUI()
         {
             for (int i = 0; i < 7; i++)
@@ -232,6 +259,7 @@ namespace QAI
 
         void ShowEndGameInteraction()
         {
+            interactionGrid.Children.Clear();
             StackPanel sPanel = new StackPanel();
             sPanel.Orientation = Orientation.Horizontal;
             sPanel.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
@@ -245,6 +273,13 @@ namespace QAI
             playAgain.Click += playAgain_Click;
             sPanel.Children.Add(playAgain);
 
+            Button review = new Button();
+            review.Content = "Review Game";
+            review.Width = 140;
+            review.Height = 40;
+            review.Click += review_Click;
+            sPanel.Children.Add(review);
+
             Button quit = new Button();
             quit.Content = "Quit";
             quit.Width = 120;
@@ -253,15 +288,85 @@ namespace QAI
             sPanel.Children.Add(quit);
         }
 
+        void ShowNavigateUI()
+        {
+            interactionGrid.Children.Clear();
+            StackPanel sPanel = new StackPanel();
+            sPanel.Orientation = Orientation.Horizontal;
+            sPanel.HorizontalAlignment = System.Windows.HorizontalAlignment.Center;
+            sPanel.VerticalAlignment = System.Windows.VerticalAlignment.Center;
+            interactionGrid.Children.Add(sPanel);
+
+            Button playAgain = new Button();
+            playAgain.Content = "Play Again";
+            playAgain.Width = 120;
+            playAgain.Height = 40;
+            playAgain.Click += playAgain_Click;
+            sPanel.Children.Add(playAgain);
+
+            Button back = new Button();
+            back.Content = "<";
+            back.Width = 70;
+            back.Height = 40;
+            back.Click += back_Click;
+            sPanel.Children.Add(back);
+
+            Button forward = new Button();
+            forward.Content = ">";
+            forward.Width = 70;
+            forward.Height = 40;
+            forward.Click += forward_Click;
+            sPanel.Children.Add(forward);
+
+            Button quit = new Button();
+            quit.Content = "Quit";
+            quit.Width = 120;
+            quit.Height = 40;
+            quit.Click += quit_Click;
+            sPanel.Children.Add(quit);
+        }
+
+        void slot_Click(object sender, RoutedEventArgs e)
+        {
+            Button slot = sender as Button;
+            GameCoords coords = slot.DataContext as GameCoords;
+
+            notifier.setClick(coords.line, coords.column);
+        }
+
         void quit_Click(object sender, RoutedEventArgs e)
         {
-            if (Finished != null)
-                Finished();
+            Quit();
         }
 
         void playAgain_Click(object sender, RoutedEventArgs e)
         {
             StartNewGame();
+        }
+
+        void review_Click(object sender, RoutedEventArgs e)
+        {
+            ShowNavigateUI();
+        }
+
+        void back_Click(object sender, RoutedEventArgs e)
+        {
+            if (field.getLastPlay() != -1)
+            {
+                ReviewPlays.Insert(0, field.getLastPlay());
+                field.undo();
+                UpdateFieldUI();
+            }
+        }
+
+        void forward_Click(object sender, RoutedEventArgs e)
+        {
+            if (ReviewPlays.Count > 0)
+            {
+                field.play(ReviewPlays[0]);
+                ReviewPlays.RemoveAt(0);
+                UpdateFieldUI();
+            }
         }
     }
 }

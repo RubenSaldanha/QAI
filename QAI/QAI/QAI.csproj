@@ -54,6 +54,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AIDefinition.cs" />
+    <Compile Include="AIS\BruteSearch\BruteSearch.cs" />
+    <Compile Include="AIS\BruteSearch\BruteSearchWindow.xaml.cs">
+      <DependentUpon>BruteSearchWindow.xaml</DependentUpon>
+    </Compile>
     <Compile Include="AIS\Human\Human.cs" />
     <Compile Include="AIS\Monkey\Monkey.cs" />
     <Compile Include="GameCoords.cs" />
@@ -63,6 +67,10 @@
       <DependentUpon>QuatroInterface.xaml</DependentUpon>
     </Compile>
     <Compile Include="QuatroPlayer.cs" />
+    <Page Include="AIS\BruteSearch\BruteSearchWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

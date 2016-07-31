@@ -18,6 +18,8 @@ namespace QAI
             get { return plays.Count % 2 + 1;  }
         }
 
+        public bool PlayerWon;
+
         public enum GameState { Playing, Player1Victory, Player2Victory, Tie }
         public GameState State { get; private set; }
 
@@ -35,6 +37,7 @@ namespace QAI
             this.heads = (int[])original.heads.Clone();
             this.plays = new List<int>(original.plays);
             this.State = original.State;
+            this.PlayerWon = original.PlayerWon;
         }
 
         public bool canPlay(int column)
@@ -51,6 +54,8 @@ namespace QAI
 
             if(checkWin())
             {
+                PlayerWon = true;
+
                 if (currentPlayer == 1)
                     State = GameState.Player1Victory;
                 else
@@ -128,8 +133,17 @@ namespace QAI
             plays.RemoveAt(0);
             heads[lastPlay]--;
             field[heads[lastPlay], lastPlay] = 0;
+            PlayerWon = false;
 
             State = GameState.Playing;
+        }
+
+        public int getLastPlay()
+        {
+            if (plays.Count > 0)
+                return plays[0];
+            else
+                return -1;
         }
 
         public void ResignPlayer(int player)
@@ -137,9 +151,15 @@ namespace QAI
             if (State == GameState.Playing)
             {
                 if (player == 1)
+                {
                     State = GameState.Player2Victory;
+                    PlayerWon = true;
+                }
                 else if (player == 2)
+                {
                     State = GameState.Player1Victory;
+                    PlayerWon = true;
+                }
                 else
                     throw new Exception("Invalid player exception, \"" + player + "\" is not a valid player");
             }
