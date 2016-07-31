@@ -26,6 +26,8 @@ namespace QAI
 
         List<AIDefinition> allAIs;
 
+        QuatroInterface quatroInterface;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -42,12 +44,38 @@ namespace QAI
 
         void StartGameButton_Click(object sender, RoutedEventArgs e)
         {
+            StartGame();
+        }
+
+        public void StartGame()
+        {
             state = ManagerState.Playing;
             ManagerInterface.SelectedIndex = 1;
 
-            QuatroPlayer player1 = allAIs[player1AIs.SelectedIndex].creator();
-            QuatroPlayer player2 = allAIs[player2AIs.SelectedIndex].creator();
-            GameControl = new QuatroInterface(player1, player2);
+            //fecth selection
+            int AI1 = player1AIs.SelectedIndex;
+            int AI2 = player2AIs.SelectedIndex;
+
+            //In case of unselected AI's, go with first one
+            if (AI1 == -1)
+                AI1 = 0;
+            if (AI2 == -1)
+                AI2 = 0;
+
+            QuatroPlayer player1 = allAIs[AI1].creator();
+            QuatroPlayer player2 = allAIs[AI2].creator();
+            quatroInterface = new QuatroInterface(player1, player2);
+            quatroInterface.Finished += GoToAIPanel;
+
+            GameControl.Content = quatroInterface;
+        }
+        public void GoToAIPanel()
+        {
+            state = ManagerState.Menu;
+            ManagerInterface.SelectedIndex = 0;
+
+            GameControl.Content = null;
+            quatroInterface = null;
         }
 
         List<AIDefinition> getPossibleAIs()
@@ -61,6 +89,10 @@ namespace QAI
 
             creator = delegate{ return new AIS.Human.Human();};
             allAIs.Add(new AIDefinition( creator , "Human"));
+
+            creator = delegate { return new AIS.Monkey.Monkey(); };
+            allAIs.Add(new AIDefinition(creator, "Monkey"));
+
 
             return allAIs;
         }        

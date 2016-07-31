@@ -8,37 +8,24 @@ namespace QAI
 {
     public class InterfaceNotifier
     {
-        object clickLock;
-        PointClick click;
+        object clickLock = new object();
+        GameCoords click;
 
-        public void setClick(int x, int y)
+        public void setClick(int line, int column)
         {
             lock (clickLock)
             {
-                click = new PointClick(x, y);
+                click = new GameCoords(line, column);
             }
         }
-        public PointClick getClick()
+        public GameCoords getClick()
         {
             lock(clickLock)
             {
                 if (click != null)
-                    return new PointClick(click.x, click.y);
+                    return new GameCoords(click.line, click.column);
                 else
                     return null;
-            }
-        }
-
-
-        public class PointClick
-        {
-            public int x;
-            public int y;
-
-            public PointClick(int x, int y)
-            {
-                this.x = x;
-                this.y = y;
             }
         }
     }

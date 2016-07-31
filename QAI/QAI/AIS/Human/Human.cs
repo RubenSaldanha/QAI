@@ -11,7 +11,7 @@ namespace QAI.AIS.Human
     {
         public override int playI(QuatroField field, InterfaceNotifier notifier)
         {
-            InterfaceNotifier.PointClick click;
+            GameCoords click;
 
             while (true)
             {
@@ -23,7 +23,7 @@ namespace QAI.AIS.Human
                     break;
             }
 
-            return click.x;
+            return click.column;
         }
     }
 }

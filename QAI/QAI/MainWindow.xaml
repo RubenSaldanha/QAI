@@ -1,10 +1,10 @@
 ﻿<Window x:Class="QAI.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="640" Width="800">
     <Grid>
         <TabControl x:Name="ManagerInterface" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
-            <TabItem Header="Menu" Visibility="Visible">
+            <TabItem Header="Menu" Visibility="Hidden">
                 <Grid Background="#FFE5E5E5">
                     <DockPanel>
                         <Button x:Name="StartGameButton" DockPanel.Dock="Top" Content="Start Game" />
@@ -22,7 +22,7 @@
                     </DockPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="InGame" Visibility="Visible">
+            <TabItem Header="InGame" Visibility="Hidden">
                 <Grid Background="#FFE5E5E5">
                     <UserControl x:Name="GameControl" />
                 </Grid>

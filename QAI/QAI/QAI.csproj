@@ -55,9 +55,10 @@
     </ApplicationDefinition>
     <Compile Include="AIDefinition.cs" />
     <Compile Include="AIS\Human\Human.cs" />
+    <Compile Include="AIS\Monkey\Monkey.cs" />
+    <Compile Include="GameCoords.cs" />
     <Compile Include="InterfaceNotifier.cs" />
     <Compile Include="QuatroField.cs" />
-    <Compile Include="QuatroGame.cs" />
     <Compile Include="QuatroInterface.xaml.cs">
       <DependentUpon>QuatroInterface.xaml</DependentUpon>
     </Compile>
@@ -105,6 +106,19 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="p1.png" />
+    <Resource Include="p2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="s0.png" />
+    <Resource Include="s1.png" />
+    <Resource Include="s2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="x1.png" />
+    <Resource Include="x2.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

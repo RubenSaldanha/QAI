@@ -4,8 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="600" d:DesignWidth="800">
     <Grid>
+        <DockPanel >
+            <Label x:Name="mainLabel" Height="80" FontSize="30" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" DockPanel.Dock="Top" />
+            <Grid x:Name="interactionGrid" Height="60" DockPanel.Dock="Top" />
+            <Label x:Name="Timer" Height="60" FontSize="40" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" DockPanel.Dock="Bottom"/>
             
+            <Grid x:Name="playGrid" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        </DockPanel>
     </Grid>
 </UserControl>
