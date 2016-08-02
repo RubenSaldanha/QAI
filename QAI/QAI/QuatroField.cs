@@ -45,6 +45,11 @@ namespace QAI
             return heads[column] < 7;
         }
 
+        public int head(int column)
+        {
+            return heads[column];
+        }
+
         public void play(int column)
         {
             int currentPlayer = PlayerTurn;

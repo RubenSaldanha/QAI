@@ -30,7 +30,7 @@ namespace QAI
         int player1Score;
         int player2Score;
 
-        System.Windows.Threading.DispatcherTimer dispatcherTimer;
+        //System.Windows.Threading.DispatcherTimer dispatcherTimer;
         int turnTime;
         int currentTurnTime;
 
@@ -97,9 +97,9 @@ namespace QAI
 
 
             //time mechanics
-            dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-            dispatcherTimer.Tick += UpdateTimer;
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 10);
+            //dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
+            //dispatcherTimer.Tick += UpdateTimer;
+            //dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 10);
             
             StartNewGame();
         }
@@ -173,7 +173,7 @@ namespace QAI
             AIworker.RunWorkerCompleted += PlayerFinish;
             AIworker.RunWorkerAsync();
 
-            dispatcherTimer.Start();
+            //dispatcherTimer.Start();
         }
 
         private void UpdateTimer(object sender, EventArgs e)
@@ -192,7 +192,7 @@ namespace QAI
                 //TODO Proper Locks, play can happen at same time than cancelation
                 AIworker.CancelAsync();
                 field.ResignPlayer(field.PlayerTurn);
-                dispatcherTimer.Stop();
+                //dispatcherTimer.Stop();
                 NextGameStep();
             }
         }
@@ -225,7 +225,7 @@ namespace QAI
 
         void PlayerFinish(object sender, RunWorkerCompletedEventArgs e)
         {
-            dispatcherTimer.Stop();
+            //dispatcherTimer.Stop();
             NextGameStep();
         }
 

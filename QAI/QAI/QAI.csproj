@@ -60,6 +60,7 @@
     </Compile>
     <Compile Include="AIS\Human\Human.cs" />
     <Compile Include="AIS\Monkey\Monkey.cs" />
+    <Compile Include="AIS\NoDepth\NoDepth.cs" />
     <Compile Include="GameCoords.cs" />
     <Compile Include="InterfaceNotifier.cs" />
     <Compile Include="QuatroField.cs" />
@@ -128,6 +129,7 @@
     <Resource Include="x1.png" />
     <Resource Include="x2.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
