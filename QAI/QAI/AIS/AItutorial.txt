@@ -1,0 +1,20 @@
+Create basic AI
+
+1. Create a Folder for the desired AI in the AI's folder
+2. Create a Class for the desired AI in that folder which inherits from QuatroPlayer
+3. Override method playI with desired AI code and return play
+4. Go to MainWindow.cs to the method getPossibleAIs and add your AI to the list
+
+(example AI: Monkey)
+
+
+Create AI with output
+
+1. Create a basic AI
+2. Create a UserControl(WPF) in the same folder has the AI
+3. Change the constructor of that UserControl to receive your AI as parameter.
+4. Register a method in the control to update its visuals in the event "Changed" of the AI.
+5. Override the method "GetFeedbackControl" in your AI, for it to return your new control.
+6. Invoke the method NotifyChanged() in your AI whenever you want the visuals to update.
+
+(example AI: TalkingMonkey)

@@ -61,6 +61,10 @@
     <Compile Include="AIS\Human\Human.cs" />
     <Compile Include="AIS\Monkey\Monkey.cs" />
     <Compile Include="AIS\NoDepth\NoDepth.cs" />
+    <Compile Include="AIS\TalkingMonkey\TalkingMonkey.cs" />
+    <Compile Include="AIS\TalkingMonkey\TalkingMonkeyControl.xaml.cs">
+      <DependentUpon>TalkingMonkeyControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="GameCoords.cs" />
     <Compile Include="InterfaceNotifier.cs" />
     <Compile Include="QuatroField.cs" />
@@ -71,6 +75,10 @@
     <Compile Include="QuatroOptions.cs" />
     <Compile Include="QuatroPlayer.cs" />
     <Page Include="AIS\BruteSearch\BruteSearchControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AIS\TalkingMonkey\TalkingMonkeyControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -131,7 +139,9 @@
     <Resource Include="x1.png" />
     <Resource Include="x2.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="AIS\AItutorial.txt" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

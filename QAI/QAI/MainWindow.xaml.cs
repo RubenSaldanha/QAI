@@ -98,6 +98,9 @@ namespace QAI
             creator = delegate { return new AIS.Monkey.Monkey(); };
             allAIs.Add(new AIDefinition(creator, "Monkey"));
 
+            creator = delegate { return new AIS.TalkingMonkey.TalkingMonkey(); };
+            allAIs.Add(new AIDefinition(creator, "Talking Monkey"));
+
             creator = delegate { return new AIS.BruteSearch.BruteSearch(); };
             allAIs.Add(new AIDefinition(creator, "BruteSearch"));
 

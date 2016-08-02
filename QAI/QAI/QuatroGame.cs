@@ -80,7 +80,11 @@ namespace QAI
                         else
                             state = QuatroGameState.Idle;
                     else
+                    {
+                        player1.EndGame();
+                        player2.EndGame();
                         state = QuatroGameState.Finished;
+                    }
 
                     //Fire State change event
                     if (StateChanged != null)
