@@ -24,7 +24,7 @@ namespace QAI.AIS.BruteSearch
 
         public BruteSearch()
         {
-            profundidade = 2;
+            profundidade = 3;
             valorDeFundo = 0.5f;
             operations = 0;
             rdm = new Random();
@@ -109,7 +109,7 @@ namespace QAI.AIS.BruteSearch
 
                             if (field.PlayerWon)
                             {
-                                jogadas[i] = 0;
+                                jogadas[i] = -1;
                                 victoriaAdversaria = true;
                                 field.undo();
                                 break;
@@ -126,7 +126,7 @@ namespace QAI.AIS.BruteSearch
                             {
                                 field.play(j);
 
-                                jogadasAdversarias[j] = valor(field, 0);
+                                jogadasAdversarias[j] = valor(field, 1);
 
                                 field.undo();
                             }
@@ -181,6 +181,7 @@ namespace QAI.AIS.BruteSearch
         private float valor(QuatroField field, int profundidadeActual)
         {
             float media = 0;
+            float[] plays = new float[9];
             float[] valoresNoFimDoAdversario = new float[9];
             int count = 0;
             bool victoriaAdversaria = false;
@@ -256,22 +257,40 @@ namespace QAI.AIS.BruteSearch
                             }
                         }
 
-                        media += min(valoresNoFimDoAdversario);
+                        //media += min(valoresNoFimDoAdversario);
+                        plays[i] = min(valoresNoFimDoAdversario);
                     }
                     else
                     {
-                        media += 0; //o jogador adversario conseguiu ganhar, SUCKER!!!
+                        //media += 0; //o jogador adversario conseguiu ganhar, SUCKER!!!
+                        plays[i] = -1;
                     }
 
                     field.undo();
                 }
+                else
+                    plays[i] = -1;
             }
 
-            media = media / count;
+            //media = media / count;
 
-            return media;
+            //return media;
+            return max(plays);
         }
-        public int max(double[] array)
+
+        public float max(float[] array)
+        {
+            float max = array[0];
+
+            for (int i = 1; i < array.Length; i++)
+            {
+                if (array[i] > max)
+                    max = array[i];
+            }
+
+            return max;
+        }
+        public int maxIndex(double[] array)
         {
             double max = array[0];
             int indice = 0;
@@ -298,6 +317,14 @@ namespace QAI.AIS.BruteSearch
             }
 
             return min;
+        }
+        public float mean(float[] array)
+        {
+            float mean = 0;
+            for (int i = 0; i < array.Length; i++)
+                mean += array[i];
+
+            return mean / array.Length;
         }
 
         public override void Destroy()
