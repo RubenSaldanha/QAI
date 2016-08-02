@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Controls;
 
 namespace QAI.AIS.BruteSearch
 {
@@ -14,7 +15,8 @@ namespace QAI.AIS.BruteSearch
         private int operations;
         Random rdm;
 
-        BruteSearchWindow win;
+        //BruteSearchWindow win;
+        BruteSearchControl control;
 
         bool playing;
         private float[] jogadas;
@@ -32,8 +34,8 @@ namespace QAI.AIS.BruteSearch
             jogadas = new float[9];
             values = new float[9];
 
-            win = new BruteSearchWindow(this);
-            win.Show();
+            //win = new BruteSearchWindow(this);
+            //win.Show();
         }
 
         public override int playI(QuatroField field, InterfaceNotifier notifier)
@@ -44,6 +46,7 @@ namespace QAI.AIS.BruteSearch
                 for (int i = 0; i < values.Length; i++)
                     values[i] = -1;
             }
+            NotifyChanged();
 
             int bestPlay = search(field);
 
@@ -53,6 +56,7 @@ namespace QAI.AIS.BruteSearch
                 for (int i = 0; i < values.Length; i++)
                     values[i] = jogadas[i];
             }
+            NotifyChanged();
 
             return bestPlay;
 	    }
@@ -177,7 +181,6 @@ namespace QAI.AIS.BruteSearch
 
             return 0;
         }
-
         private float valor(QuatroField field, int profundidadeActual)
         {
             float media = 0;
@@ -277,7 +280,6 @@ namespace QAI.AIS.BruteSearch
             //return media;
             return max(plays);
         }
-
         public float max(float[] array)
         {
             float max = array[0];
@@ -329,7 +331,17 @@ namespace QAI.AIS.BruteSearch
 
         public override void Destroy()
         {
-            win.Close();
+            //win.Close();
+        }
+
+        public override Control GetFeedbackControl()
+        {
+            if(control == null)
+            {
+                control = new BruteSearchControl(this);
+            }
+
+            return control;
         }
     }
 }

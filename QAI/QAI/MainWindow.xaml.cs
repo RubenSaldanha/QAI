@@ -64,7 +64,12 @@ namespace QAI
 
             QuatroPlayer player1 = allAIs[AI1].creator();
             QuatroPlayer player2 = allAIs[AI2].creator();
-            quatroInterface = new QuatroInterface(player1, player2);
+
+            QuatroOptions options = new QuatroOptions();
+            options.automaticPlay = automaticCheckBox.IsChecked.Value;
+            options.turnSeconds = 10f;
+
+            quatroInterface = new QuatroInterface(player1, player2, options);
             quatroInterface.Finished += GoToAIPanel;
 
             GameControl.Content = quatroInterface;

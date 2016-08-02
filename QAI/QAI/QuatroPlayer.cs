@@ -12,11 +12,22 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 
 namespace QAI
 {
     public abstract class QuatroPlayer
     {
+        public Dispatcher mainThread;
+
+        public event Action Changed;
+
+        public virtual Control GetFeedbackControl()
+        {
+            Label empty = new Label();
+            empty.Content = "Nothing to show";
+            return empty;
+        }
 
         public virtual void StartGame()
         {
@@ -30,6 +41,28 @@ namespace QAI
         public virtual void Destroy()
         {
 
+        }
+
+
+        public virtual Control Analyse(QuatroField field)
+        {
+            Label empty = new Label();
+            empty.Content = "Nothing to show";
+            return empty;
+        }
+
+        protected void NotifyChanged()
+        {
+            if (mainThread != null)
+            {
+                Action fP = delegate { FireEvent(); };
+                mainThread.BeginInvoke(fP);
+            }
+        }
+        private void FireEvent()
+        {
+            if (Changed != null)
+                Changed();
         }
     }
 }

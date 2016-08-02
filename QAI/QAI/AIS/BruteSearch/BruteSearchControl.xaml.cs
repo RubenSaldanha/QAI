@@ -10,37 +10,37 @@ using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
 using System.Windows.Shapes;
 
 namespace QAI.AIS.BruteSearch
 {
     /// <summary>
-    /// Interaction logic for BruteSearchWindow.xaml
+    /// Interaction logic for BruteSearchControl.xaml
     /// </summary>
-    public partial class BruteSearchWindow : Window
+    public partial class BruteSearchControl : UserControl
     {
+        //Referenciar a AI
         BruteSearch AI;
+
 
         float[] localValues;
 
-        System.Windows.Threading.DispatcherTimer dispatcherTimer;
-
-        public BruteSearchWindow(BruteSearch AI)
+        public BruteSearchControl(BruteSearch AI)
         {
             this.AI = AI;
             InitializeComponent();
 
             localValues = new float[9];
 
-            dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-            dispatcherTimer.Tick += UpdateTimer;
-            dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 250);
-            dispatcherTimer.Start();
+            //-------Registar um método no evento Changed da AI-------
+            AI.Changed += UpdateValues;
         }
 
-        private void UpdateTimer(object sender, EventArgs e)
+        public void UpdateValues()
         {
-            lock(AI.valuesLock)
+            //--------- Utlizar esse método para dar update à parte visual, com base em valores que a AI tem publicos ----------
+            lock (AI.valuesLock)
             {
                 localValues[0] = AI.values[0];
                 localValues[1] = AI.values[1];
@@ -51,6 +51,7 @@ namespace QAI.AIS.BruteSearch
                 localValues[6] = AI.values[6];
                 localValues[7] = AI.values[7];
                 localValues[8] = AI.values[8];
+                //LOL WTF, devia estar bebado quando fiz isto
             }
 
             UpdateValues(localValues);
@@ -58,15 +59,12 @@ namespace QAI.AIS.BruteSearch
 
         public void UpdateValues(float[] values)
         {
-            v0.Content = values[0].ToString("0.00");
-            v1.Content = values[1].ToString("0.00");
-            v2.Content = values[2].ToString("0.00");
-            v3.Content = values[3].ToString("0.00");
-            v4.Content = values[4].ToString("0.00");
-            v5.Content = values[5].ToString("0.00");
-            v6.Content = values[6].ToString("0.00");
-            v7.Content = values[7].ToString("0.00");
-            v8.Content = values[8].ToString("0.00");
+            String feedbackString = "Valores:\n\n\n";
+
+            for (int i = 0; i < 9; i++)
+                feedbackString += "Jogada " + i + " : " + values[i].ToString("0.00") + "\n\n";
+
+            mainLabel.Content = feedbackString;
         }
     }
 }

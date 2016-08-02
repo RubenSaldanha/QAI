@@ -22,22 +22,13 @@ namespace QAI
     /// </summary>
     public partial class QuatroInterface : UserControl
     {
-        QuatroField field;
+        QuatroGame game;
 
         QuatroPlayer player1;
         QuatroPlayer player2;
 
         int player1Score;
         int player2Score;
-
-        //System.Windows.Threading.DispatcherTimer dispatcherTimer;
-        int turnTime;
-        int currentTurnTime;
-
-        BackgroundWorker AIworker;
-
-        object notifierLock = new object();
-        InterfaceNotifier notifier;
 
         Button[,] fieldUI;
 
@@ -49,14 +40,24 @@ namespace QAI
 
         List<int> ReviewPlays;
 
-        public QuatroInterface(QuatroPlayer player1, QuatroPlayer player2)
+        QuatroOptions options;
+
+        public enum QuatroInterfaceState { Idle, Playing, GameOver, Review}
+
+        public QuatroInterface(QuatroPlayer player1, QuatroPlayer player2, QuatroOptions options)
         {
             InitializeComponent();
 
-            turnTime = 1000;
-
             this.player1 = player1;
             this.player2 = player2;
+
+            player1.mainThread = this.Dispatcher;
+            player2.mainThread = this.Dispatcher;
+
+            player1Control.Content = player1.GetFeedbackControl();
+            player2Control.Content = player2.GetFeedbackControl();
+
+            this.options = options;
 
             fieldUI = new Button[7, 9];
 
@@ -86,6 +87,12 @@ namespace QAI
 
                     column.Children.Add(slot);
                 }
+
+                Label columnNumber = new Label();
+                columnNumber.Content = "" + i;
+                columnNumber.FontSize = 16;
+                columnNumber.HorizontalContentAlignment = System.Windows.HorizontalAlignment.Center;
+                column.Children.Add(columnNumber);
             }
 
             slotImage = new BitmapImage(new Uri("s0.png", UriKind.Relative));
@@ -94,46 +101,119 @@ namespace QAI
 
             player1ScoreLabel.Content = "0";
             player2ScoreLabel.Content = "0";
-
-
-            //time mechanics
-            //dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-            //dispatcherTimer.Tick += UpdateTimer;
-            //dispatcherTimer.Interval = new TimeSpan(0, 0, 0, 0, 10);
             
+
             StartNewGame();
         }
 
         void StartNewGame()
         {
-            field = new QuatroField();
             interactionGrid.Children.Clear();
-            UpdateFieldUI();
             ReviewPlays = new List<int>();
+            game = null;
+            UpdateFieldUI();
 
-            player1.StartGame();
-            player2.StartGame();
 
-            NextGameStep();
+            game = new QuatroGame(player1, player2, options);
+
+            game.TimerChanged += UpdateTimer;
+            game.StateChanged += GameStateChanged;
+            game.FieldChanged += UpdateFieldUI;
+
+            if(!options.automaticPlay)
+            {
+                ShowIdleInteraction();
+            }
         }
 
-        void NextGameStep()
+        void GameStateChanged()
         {
-            UpdateFieldUI();
-
-            if (field.State == QuatroField.GameState.Playing)
+            switch(game.state)
             {
-                mainLabel.Content = "Player " + field.PlayerTurn + " Turn";
-                KickStartNextPlayer();
+                case QuatroGame.QuatroGameState.Idle:
+                    ShowIdleInteraction();
+                    break;
+                case QuatroGame.QuatroGameState.Playing:
+                    UpdateHeadUI();
+                    break;
+                case QuatroGame.QuatroGameState.Finished:
+                    UpdateHeadUI();
+                    ShowEndGameInteraction();
+                    break;
+            }
+        }
+
+        void Quit()
+        {
+            player1.Destroy();
+            player2.Destroy();
+
+            if (Finished != null)
+                Finished();
+        }
+
+        private void UpdateTimer()
+        {
+            int currentTurnTime = game.currentTurnTime;
+
+            String centiSeconds = ("" + currentTurnTime % 100).PadLeft(2,'0');
+            String seconds = ("" + (currentTurnTime / 100) % 60).PadLeft(2,'0');;
+            String minutes = ("" + ((currentTurnTime / 100) / 60) % 60).PadLeft(2,'0');;
+            Timer.Content = "" + minutes + ":" + seconds + ":" + centiSeconds;
+        }
+
+        public void UpdateFieldUI()
+        {
+            if (game == null)
+            {
+                for (int i = 0; i < 7; i++)
+                {
+                    for (int j = 0; j < 9; j++)
+                    {
+                        Image p0i = new Image();
+                        p0i.Source = slotImage;
+                        fieldUI[i, j].Content = p0i;
+                    }
+                }
             }
             else
-                EndGame();
+            {
+
+
+                for (int i = 0; i < 7; i++)
+                {
+                    for (int j = 0; j < 9; j++)
+                    {
+                        switch (game.field[i, j])
+                        {
+                            case 0:
+                                Image p0i = new Image();
+                                p0i.Source = slotImage;
+                                fieldUI[i, j].Content = p0i;
+                                break;
+                            case 1:
+                                Image p1i = new Image();
+                                p1i.Source = p1Image;
+                                fieldUI[i, j].Content = p1i;
+                                break;
+                            case 2:
+                                Image p2i = new Image();
+                                p2i.Source = p2Image;
+                                fieldUI[i, j].Content = p2i;
+                                break;
+                        }
+                    }
+                }
+            }
         }
 
-        void EndGame()
+        void UpdateHeadUI()
         {
-            switch (field.State)
+            switch (game.field.State)
             {
+                case QuatroField.GameState.Playing:
+                    mainLabel.Content = "Player " + game.field.PlayerTurn + " Turn";
+                    break;
                 case QuatroField.GameState.Player1Victory:
                     mainLabel.Content = "Player 1 Wins!!!";
                     player1Score++;
@@ -148,113 +228,17 @@ namespace QAI
                     mainLabel.Content = "--- Tie ---";
                     break;
             }
-
-            player1.EndGame();
-            player2.EndGame();
-
-            ShowEndGameInteraction();
         }
 
-        void Quit()
+        void ShowIdleInteraction()
         {
-            player1.Destroy();
-            player2.Destroy();
-
-            if (Finished != null)
-                Finished();
-        }
-
-        void KickStartNextPlayer()
-        {
-            currentTurnTime = turnTime;
-            AIworker = new BackgroundWorker();
-            AIworker.WorkerSupportsCancellation = true;
-            AIworker.DoWork += PlayerPlay;
-            AIworker.RunWorkerCompleted += PlayerFinish;
-            AIworker.RunWorkerAsync();
-
-            //dispatcherTimer.Start();
-        }
-
-        private void UpdateTimer(object sender, EventArgs e)
-        {
-            currentTurnTime--;
-            if (currentTurnTime < 0)
-                currentTurnTime = 0;
-
-            String centiSeconds = ("" + currentTurnTime % 100).PadLeft(2,'0');
-            String seconds = ("" + (currentTurnTime / 100) % 60).PadLeft(2,'0');;
-            String minutes = ("" + ((currentTurnTime / 100) / 60) % 60).PadLeft(2,'0');;
-            Timer.Content = "" + minutes + ":" + seconds + ":" + centiSeconds;
-
-            if(currentTurnTime == 0)
-            {
-                //TODO Proper Locks, play can happen at same time than cancelation
-                AIworker.CancelAsync();
-                field.ResignPlayer(field.PlayerTurn);
-                //dispatcherTimer.Stop();
-                NextGameStep();
-            }
-        }
-
-        void PlayerPlay(object sender, DoWorkEventArgs e)
-        {
-            int player = field.PlayerTurn;
-            int play;
-
-            QuatroField fieldCopy = field.getCopy();
-
-            lock (notifierLock)
-            {
-                notifier = new InterfaceNotifier();
-            }
-
-            if (player == 1)
-                play = player1.playI(fieldCopy, notifier);
-            else
-                play = player2.playI(fieldCopy, notifier);
-
-            if(field.canPlay(play))
-                field.play(play);
-            else
-            {
-                //invalid play by AI
-                field.ResignPlayer(player);
-            }
-        }
-
-        void PlayerFinish(object sender, RunWorkerCompletedEventArgs e)
-        {
-            //dispatcherTimer.Stop();
-            NextGameStep();
-        }
-
-        void UpdateFieldUI()
-        {
-            for (int i = 0; i < 7; i++)
-            {
-                for (int j = 0; j < 9; j++)
-                {
-                    switch(field[i,j])
-                    {
-                        case 0:
-                            Image p0i = new Image();
-                            p0i.Source = slotImage;
-                            fieldUI[i, j].Content = p0i;
-                            break;
-                        case 1:
-                            Image p1i = new Image();
-                            p1i.Source = p1Image;
-                            fieldUI[i, j].Content = p1i;
-                            break;
-                        case 2:
-                            Image p2i = new Image();
-                            p2i.Source = p2Image;
-                            fieldUI[i, j].Content = p2i;
-                            break;
-                    }
-                }
-            }
+            interactionGrid.Children.Clear();
+            Button next = new Button();
+            next.Content = "Next";
+            next.Width = 180;
+            next.Height = 40;
+            next.Click += next_Click;
+            interactionGrid.Children.Add(next);
         }
 
         void ShowEndGameInteraction()
@@ -288,7 +272,7 @@ namespace QAI
             sPanel.Children.Add(quit);
         }
 
-        void ShowNavigateUI()
+        void ShowNavigateInteraction()
         {
             interactionGrid.Children.Clear();
             StackPanel sPanel = new StackPanel();
@@ -328,10 +312,13 @@ namespace QAI
 
         void slot_Click(object sender, RoutedEventArgs e)
         {
-            Button slot = sender as Button;
-            GameCoords coords = slot.DataContext as GameCoords;
+            if (game != null)
+            {
+                Button slot = sender as Button;
+                GameCoords coords = slot.DataContext as GameCoords;
 
-            notifier.setClick(coords.line, coords.column);
+                game.PutClick(coords);
+            }
         }
 
         void quit_Click(object sender, RoutedEventArgs e)
@@ -346,15 +333,15 @@ namespace QAI
 
         void review_Click(object sender, RoutedEventArgs e)
         {
-            ShowNavigateUI();
+            ShowNavigateInteraction();
         }
 
         void back_Click(object sender, RoutedEventArgs e)
         {
-            if (field.getLastPlay() != -1)
+            if (game.field.getLastPlay() != -1)
             {
-                ReviewPlays.Insert(0, field.getLastPlay());
-                field.undo();
+                ReviewPlays.Insert(0, game.field.getLastPlay());
+                game.field.undo();
                 UpdateFieldUI();
             }
         }
@@ -363,10 +350,17 @@ namespace QAI
         {
             if (ReviewPlays.Count > 0)
             {
-                field.play(ReviewPlays[0]);
+                game.field.play(ReviewPlays[0]);
                 ReviewPlays.RemoveAt(0);
                 UpdateFieldUI();
             }
         }
+
+        void next_Click(object sender, RoutedEventArgs e)
+        {
+            interactionGrid.Children.Clear();
+            game.NextGameStep();
+        }
+
     }
 }
