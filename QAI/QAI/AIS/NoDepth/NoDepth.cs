@@ -7,9 +7,11 @@ using System.Windows;
 
 namespace QAI.AIS.NoDepth
 {
-    class NoDepth : QuatroPlayer
+    public class NoDepth : QuatroPlayer
     {
         Random rdm = new Random();
+
+        public String talk;
 
         public override int playI(QuatroField field, InterfaceNotifier notifier)
         {
@@ -21,7 +23,8 @@ namespace QAI.AIS.NoDepth
             play = winNext(myNumber, field);
             if (play != -1)
             {
-                MessageBox.Show("Eu vou ganhar.", "NoDepth AI Tought");
+                talk = "Eu vou ganhar na coluna " + play;
+                NotifyChanged();
                 return play;
             }
                 
@@ -29,12 +32,13 @@ namespace QAI.AIS.NoDepth
             play = winNext(opNumber, field);
             if (play != -1)
             {
-                MessageBox.Show("Tu ias ganhar.", "NoDepth AI Tought");
+                talk = "Tu ias ganhar na coluna " + play;
+                NotifyChanged();
                 return play;
             }
 
-            List<int> moves = bestPlay(possibleMoves(field), myNumber, opNumber, field);
-
+            List<int> moves = triar(possibleMoves(field), myNumber, opNumber, field);
+            
             return moves[rdm.Next(moves.Count)];
         }
 
@@ -290,35 +294,224 @@ namespace QAI.AIS.NoDepth
 
             return true;
         }
-
-        public List<int> bestPlay(List<int> possibleMoves, int myNumber, int opNumber, QuatroField field)
+        
+        public List<int> triar(List<int> possibleMoves, int myNumber, int opNumber, QuatroField field)
         {
-            List<int> seguros = new List<int>();
-            List<int> naoSeguros1 = new List<int>();
-            List<int> naoSeguros2 = new List<int>();
-
+            List<int> opWin = new List<int>();
+            List<int> meTwoWays = new List<int>();
+            List<int> opTwoWays = new List<int>();
+            List<int> opOneWay = new List<int>();
+            List<int> meOneWay = new List<int>();
+            List<int> opCanStop = new List<int>();
+            List<int> safe = new List<int>();
+            
             for (int i = 0; i < possibleMoves.Count; i++)
             {
-                if (isSafe(possibleMoves[i], myNumber, field) && isSafe(possibleMoves[i], opNumber, field))
-                    seguros.Add(possibleMoves[i]);
+                // selection logic
+                if (!isSafe(possibleMoves[i], opNumber, field))
+                    opWin.Add(possibleMoves[i]);
+                else if (nCaminhos(myNumber, possibleMoves[i], myNumber, field) > 1)
+                    meTwoWays.Add(possibleMoves[i]);
+                else if (nCaminhos(opNumber, possibleMoves[i], opNumber, field) > 1)
+                    opTwoWays.Add(possibleMoves[i]);
                 else if (!isSafe(possibleMoves[i], myNumber, field))
-                {
-                    MessageBox.Show("Se jogar na coluna " + possibleMoves[i] + " tu impedes-me a seguir.", "NoDepth AI Tought");
-                    naoSeguros1.Add(possibleMoves[i]);
-                }
-                else if (!isSafe(possibleMoves[i], opNumber, field))
-                {
-                    MessageBox.Show("Se jogar na coluna " + possibleMoves[i] + " tu ganhas a seguir.", "NoDepth AI Tought");
-                    naoSeguros2.Add(possibleMoves[i]);
-                }
-                    
+                    opCanStop.Add(possibleMoves[i]);
+                else if (nCaminhos(myNumber, possibleMoves[i], myNumber, field) > 0)
+                    meOneWay.Add(possibleMoves[i]);
+                else if (nCaminhos(opNumber, possibleMoves[i], opNumber, field) > 0)
+                    opOneWay.Add(possibleMoves[i]);
+                else
+                    safe.Add(possibleMoves[i]);
             }
-            if (seguros.Count != 0)
-                return seguros;
-            else if (naoSeguros1.Count != 0)
-                return naoSeguros1;
+
+            talk =  "meTwoWays -> " + string.Join(", ", meTwoWays) +
+                    "\nopTwoWays -> " + string.Join(", ", opTwoWays) +
+                    "\nmeOneWay -> " + string.Join(", ", meOneWay) +
+                    "\nopOneWay -> " + string.Join(", ", opOneWay) +
+                    "\nsafe -> " + string.Join(", ", safe) +
+                    "\nopCanStop -> " + string.Join(", ", opCanStop) +
+                    "\nopWin -> " + string.Join(", ", opWin) + "\n";
+            
+            if (meTwoWays.Count > 0)
+            {
+                talk += "Vou fazer dois caminhos.";
+                NotifyChanged();
+                return meTwoWays;
+            }
+            else if (opTwoWays.Count > 0)
+            {
+                talk += "Podias fazer dois caminhos!";
+                NotifyChanged();
+                return opTwoWays;
+            }
+            else if (meOneWay.Count > 0)
+            {
+                talk += "Vou fazer um caminho";
+                NotifyChanged();
+                return meOneWay;
+            }
+            else if (opOneWay.Count > 0)
+            {
+                talk += "Podias fazer um caminho";
+                NotifyChanged();
+                return opOneWay;
+            }
+            else if (safe.Count > 0)
+            {
+                talk += "Safe Monkey Move";
+                NotifyChanged();
+                return safe;
+            }
+            else if (opCanStop.Count > 0)
+            {
+                talk += "Podes impedir-me :c";
+                NotifyChanged();
+                return opCanStop;
+            }
             else
-                return naoSeguros2;
+            {
+                talk += "Ganhas-te";
+                NotifyChanged();
+                return opWin;
+            }
+        }
+
+        public int nCaminhos(int playerToPlay, int columnToPlay, int playerToScan, QuatroField field)
+        {
+            field.forcePlay(columnToPlay, playerToPlay);
+
+            int countCaminhos = 0;
+            int count = 1;
+            int column = -1;
+
+            for (int y = 0; y < 7; y++)
+            {
+                for (int x = 0; x < 9; x++)
+                {
+                    // para todas as jogadas verificar todas as possibilidades
+                    if (field[y, x] == playerToScan)
+                    {
+                        // horizontal ->
+                        if (x < 6)
+                        {
+                            for (int i = 1; i < 4; i++)
+                                if (field[y, x + i] == playerToScan)
+                                    count++;
+                                else
+                                    column = x + i;   // checkar gaps e.g: 1011
+
+                            if (count == 3 && field.head(column) == y && field[y, x + 1] == playerToScan)
+                                countCaminhos++;
+                            else
+                                count = 1;
+                        }
+
+                        // horizontal <-  
+                        // NOTA: Gaps horizontais ja foram chekados em cima.
+                        if (x > 2)
+                        {
+                            column = x - 3;
+                            for (int i = 1; i < 3; i++)
+                                if (field[y, x - i] == playerToScan)
+                                    count++;
+
+                            if (count == 3 && field.head(column) == y && field[y, x - 1] == playerToScan)
+                                countCaminhos++;
+                            else
+                                count = 1;
+                        }
+                        
+                        // vertical
+                        if (y < 4)
+                        {
+                            for (int i = 1; i < 3; i++)
+                                if (field[y + i, x] == playerToScan)
+                                    count++;
+
+                            if (count == 3 && field.head(x) == y + 3 && field[y + 1, x] == playerToScan)
+                                countCaminhos++;
+                            else
+                                count = 1;
+                        }
+
+                        // diagonal declive 1 ->
+                        if (x < 6 && y < 4)
+                        {
+                            int line = -10;
+                            for (int i = 1; i < 4; i++)
+                                if (field[y + i, x + i] == playerToScan)
+                                    count++;
+                                else
+                                {
+                                    column = x + i;   // checkar gaps
+                                    line = y + i;
+                                }
+
+
+                            if (count == 3 && field.head(column) == line)
+                                countCaminhos++;
+                            else
+                                count = 1;
+                        }
+
+                        // diagonal declive 1 <-
+                        // NOTA: Gaps diagonais com declive 1 ja foram chekados em cima.
+                        if (x > 2 && y > 2)
+                        {
+                            column = x - 3;
+                            for (int i = 1; i < 3; i++)
+                                if (field[y - i, x - i] == playerToScan)
+                                    count++;
+
+                            if (count == 3 && field.head(column) == y - 3 && field[y - 1, x - 1] == playerToScan)
+                                countCaminhos++;
+                            else
+                                count = 1;
+                        }
+
+
+                        // diagonal declive -1 ->
+                        if (x < 6 && y > 2)
+                        {
+                            int line = -10;
+                            for (int i = 1; i < 4; i++)
+                                if (field[y - i, x + i] == playerToScan)
+                                    count++;
+                                else
+                                {
+                                    column = x + i;   // checkar gaps
+                                    line = y - i;
+                                }
+
+
+                            if (count == 3 && field.head(column) == line)
+                                countCaminhos++;
+                            else
+                                count = 1;
+                        }
+
+                        // diagonal declive -1 <-
+                        // NOTA: Gaps diagonais com declive -1 ja foram chekados em cima.
+                        if (x > 2 && y < 4)
+                        {
+                            column = x - 3;
+                            for (int i = 1; i < 3; i++)
+                                if (field[y + i, x - i] == playerToScan)
+                                    count++;
+
+                            if (count == 3 && field.head(column) == y + 3 && field[y + 1, x - 1] == playerToScan)
+                                countCaminhos++;
+                            else
+                                count = 1;
+                        }
+
+
+                    }
+                }
+            }
+            field.undo();
+
+            return countCaminhos;
         }
 
         List<int> possibleMoves(QuatroField field)
@@ -335,5 +528,45 @@ namespace QAI.AIS.NoDepth
 
             return plays;
         }
+
+
+
+        //Override method to return the visual control
+        public override System.Windows.Controls.Control GetFeedbackControl()
+        {
+            return new NoDepthControl(this);
+        }
+
+        //public List<int> bestPlay(List<int> possibleMoves, int myNumber, int opNumber, QuatroField field)
+        //{
+        //    List<int> seguros = new List<int>();
+        //    List<int> naoSeguros1 = new List<int>();
+        //    List<int> naoSeguros2 = new List<int>();
+
+        //    for (int i = 0; i < possibleMoves.Count; i++)
+        //    {
+        //        if (isSafe(possibleMoves[i], myNumber, field) && isSafe(possibleMoves[i], opNumber, field))
+        //            seguros.Add(possibleMoves[i]);
+        //        else if (!isSafe(possibleMoves[i], myNumber, field))
+        //        {
+        //            //talk = "Se jogar na coluna " + possibleMoves[i] + " tu impedes-me a seguir";
+        //            //NotifyChanged();
+        //            naoSeguros1.Add(possibleMoves[i]);
+        //        }
+        //        else if (!isSafe(possibleMoves[i], opNumber, field))
+        //        {
+        //            //talk = "Se jogar na coluna " + possibleMoves[i] + " tu ganhas a seguir";
+        //            //NotifyChanged();
+        //            naoSeguros2.Add(possibleMoves[i]);
+        //        }
+
+        //    }
+        //    if (seguros.Count != 0)
+        //        return seguros;
+        //    else if (naoSeguros1.Count != 0)
+        //        return naoSeguros1;
+        //    else
+        //        return naoSeguros2;
+        //}
     }
 }

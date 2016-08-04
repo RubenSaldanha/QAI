@@ -61,6 +61,9 @@
     <Compile Include="AIS\Human\Human.cs" />
     <Compile Include="AIS\Monkey\Monkey.cs" />
     <Compile Include="AIS\NoDepth\NoDepth.cs" />
+    <Compile Include="AIS\NoDepth\NoDepthControl.xaml.cs">
+      <DependentUpon>NoDepthControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="AIS\TalkingMonkey\TalkingMonkey.cs" />
     <Compile Include="AIS\TalkingMonkey\TalkingMonkeyControl.xaml.cs">
       <DependentUpon>TalkingMonkeyControl.xaml</DependentUpon>
@@ -75,6 +78,10 @@
     <Compile Include="QuatroOptions.cs" />
     <Compile Include="QuatroPlayer.cs" />
     <Page Include="AIS\BruteSearch\BruteSearchControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="AIS\NoDepth\NoDepthControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

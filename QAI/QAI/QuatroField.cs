@@ -70,11 +70,30 @@ namespace QAI
                 State = GameState.Tie;
         }
 
+        public void forcePlay(int column, int player)
+        {
+            field[heads[column], column] = player;
+            heads[column]++;
+            plays.Insert(0, column);
+
+            if (checkWin())
+            {
+                PlayerWon = true;
+
+                if (player == 1)
+                    State = GameState.Player1Victory;
+                else
+                    State = GameState.Player2Victory;
+            }
+            else if (plays.Count == 7 * 9)
+                State = GameState.Tie;
+        }
+
         private bool checkWin()
         {
             int column = plays[0];
             int line = heads[column] - 1;
-            int currentPlayer = (plays.Count - 1) % 2 + 1;
+            int currentPlayer = field[line, column];
 
 
             int row = 0;            // numero de peças consecutivas.
