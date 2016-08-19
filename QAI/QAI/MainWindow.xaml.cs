@@ -66,7 +66,18 @@ namespace QAI
             QuatroPlayer player2 = allAIs[AI2].creator();
 
             QuatroOptions options = new QuatroOptions();
-            options.automaticPlay = automaticCheckBox.IsChecked.Value;
+            switch(automaticComboBox.SelectedIndex)
+            {
+                case 0:
+                    options.automaticPlay = QuatroOptions.AutomaticPlay.StepAnalysis;
+                    break;
+                case 1:
+                    options.automaticPlay = QuatroOptions.AutomaticPlay.Regular;
+                    break;
+                case 2:
+                    options.automaticPlay = QuatroOptions.AutomaticPlay.Automatic;
+                    break;
+            }
             options.turnSeconds = 10f;
 
             quatroInterface = new QuatroInterface(player1, player2, options);
@@ -107,6 +118,8 @@ namespace QAI
             creator = delegate { return new AIS.NoDepth.NoDepth(); };
             allAIs.Add(new AIDefinition(creator, "NoDepth"));
 
+            creator = delegate { return new AIS.WeightedBruteSearch.WeightedBruteSearch(); };
+            allAIs.Add(new AIDefinition(creator, "WeightedBruteSearch"));
 
             return allAIs;
         }        

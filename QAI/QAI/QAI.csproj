@@ -54,6 +54,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AIDefinition.cs" />
+    <Compile Include="AIS\WeightedBruteSearch\WeightedBruteSearch.cs" />
+    <Compile Include="AIS\WeightedBruteSearch\WeightedBruteSearchControl.xaml.cs">
+      <DependentUpon>WeightedBruteSearchControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="AIS\BruteSearch\BruteSearch.cs" />
     <Compile Include="AIS\BruteSearch\BruteSearchControl.xaml.cs">
       <DependentUpon>BruteSearchControl.xaml</DependentUpon>
@@ -77,6 +81,10 @@
     </Compile>
     <Compile Include="QuatroOptions.cs" />
     <Compile Include="QuatroPlayer.cs" />
+    <Page Include="AIS\WeightedBruteSearch\WeightedBruteSearchControl.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="AIS\BruteSearch\BruteSearchControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

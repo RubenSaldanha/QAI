@@ -43,7 +43,7 @@ namespace QAI.AIS.TalkingMonkey
             talk = "Lets DO THIS!!";
             NotifyChanged();
         }
-        public override void EndGame()
+        public override void EndGame(QuatroField field)
         {
             talk = "I WOOOONNNN!!!!";
             NotifyChanged();

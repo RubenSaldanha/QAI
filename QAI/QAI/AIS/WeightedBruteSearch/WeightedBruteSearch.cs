@@ -5,9 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 
-namespace QAI.AIS.BruteSearch
+namespace QAI.AIS.WeightedBruteSearch
 {
-    public class BruteSearch : QuatroPlayer
+    public class WeightedBruteSearch : QuatroPlayer
     {
         private int profundidade;
         private int player_;
@@ -16,7 +16,7 @@ namespace QAI.AIS.BruteSearch
         Random rdm;
 
         //BruteSearchWindow win;
-        BruteSearchControl control;
+        WeightedBruteSearchControl control;
 
         bool playing;
         private float[] jogadas;
@@ -24,7 +24,9 @@ namespace QAI.AIS.BruteSearch
         public Object valuesLock = new object();
         public float[] values;
 
-        public BruteSearch()
+        public static float alpha = 0.3f; //Tuning variable
+
+        public WeightedBruteSearch()
         {
             profundidade = 3;
             valorDeFundo = 0.5f;
@@ -33,9 +35,6 @@ namespace QAI.AIS.BruteSearch
 
             jogadas = new float[9];
             values = new float[9];
-
-            //win = new BruteSearchWindow(this);
-            //win.Show();
         }
 
         public override int playI(QuatroField field, InterfaceNotifier notifier)
@@ -227,15 +226,15 @@ namespace QAI.AIS.BruteSearch
 
                     field.play(i);
 
-                    //advCount = 0;
-                    //advMean = 0f;
+                    advCount = 0;
+                    advMean = 0f;
 
                     // --------------- calcular os valores consoante as jogadas adversarias ---------------
                     for (int j = 0; j < 9; j++)
                     {
                         if (field.canPlay(j))
                         {
-                            //advCount++;
+                            advCount++;
                             field.play(j);
 
                             if (field.PlayerWon)
@@ -258,7 +257,7 @@ namespace QAI.AIS.BruteSearch
 
 
                                 valoresNoFimDoAdversario[j] = valor(field, profundidadeActual + 1);
-                                //advMean += valoresNoFimDoAdversario[j];
+                                advMean += valoresNoFimDoAdversario[j];
                                 //System.out.println(ope);
 
 
@@ -266,13 +265,13 @@ namespace QAI.AIS.BruteSearch
                             }
                         }
 
-                        //media += min(valoresNoFimDoAdversario)*0.5f + advMean/advCount;
-                        plays[i] = min(valoresNoFimDoAdversario);
+                        media += min(valoresNoFimDoAdversario)*alpha + (1-alpha)*advMean/advCount;
+                        //plays[i] = min(valoresNoFimDoAdversario);
                     }
                     else
                     {
-                        //media += 0; //o jogador adversario conseguiu ganhar, SUCKER!!!
-                        plays[i] = 0;
+                        media += 0; //o jogador adversario conseguiu ganhar, SUCKER!!!
+                        //plays[i] = 0;
                     }
 
                     field.undo();
@@ -281,10 +280,10 @@ namespace QAI.AIS.BruteSearch
                     plays[i] = -1;
             }
 
-            //media = media / count;
+            media = media / count;
 
-            //return media;
-            return max(plays);
+            return media;
+            //return max(plays);
         }
         public float max(float[] array)
         {
@@ -344,7 +343,7 @@ namespace QAI.AIS.BruteSearch
         {
             if(control == null)
             {
-                control = new BruteSearchControl(this);
+                control = new WeightedBruteSearchControl(this);
             }
 
             return control;

@@ -9,6 +9,8 @@ namespace QAI
     public class QuatroOptions
     {
         public float turnSeconds;
-        public bool automaticPlay;
+
+        public AutomaticPlay automaticPlay;
+        public enum AutomaticPlay { StepAnalysis, Regular, Automatic}
     }
 }

@@ -53,7 +53,7 @@ namespace QAI
             player1.StartGame();
             player2.StartGame();
 
-            if (options.automaticPlay)
+            if (options.automaticPlay != QuatroOptions.AutomaticPlay.StepAnalysis)
                 NextGameStep();
         }
 
@@ -75,14 +75,14 @@ namespace QAI
 
                     //Check the result of the playing and act accordingly
                     if (field.State == QuatroField.GameState.Playing)
-                        if (options.automaticPlay)
+                        if (options.automaticPlay != QuatroOptions.AutomaticPlay.StepAnalysis)
                             KickStartNextPlayer();
                         else
                             state = QuatroGameState.Idle;
                     else
                     {
-                        player1.EndGame();
-                        player2.EndGame();
+                        player1.EndGame(field.getCopy());
+                        player2.EndGame(field.getCopy());
                         state = QuatroGameState.Finished;
                     }
 

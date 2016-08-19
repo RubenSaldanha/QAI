@@ -34,7 +34,7 @@ namespace QAI
 
         }
         public abstract int playI(QuatroField field, InterfaceNotifier notifier);
-        public virtual void EndGame()
+        public virtual void EndGame(QuatroField field)
         {
 
         }

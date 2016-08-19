@@ -120,7 +120,7 @@ namespace QAI
             game.StateChanged += GameStateChanged;
             game.FieldChanged += UpdateFieldUI;
 
-            if(!options.automaticPlay)
+            if(options.automaticPlay == QuatroOptions.AutomaticPlay.StepAnalysis)
             {
                 ShowIdleInteraction();
             }
@@ -138,7 +138,11 @@ namespace QAI
                     break;
                 case QuatroGame.QuatroGameState.Finished:
                     UpdateHeadUI();
-                    ShowEndGameInteraction();
+
+                    if(options.automaticPlay == QuatroOptions.AutomaticPlay.Automatic)
+                        StartNewGame();
+                    else
+                        ShowEndGameInteraction();
                     break;
             }
         }
