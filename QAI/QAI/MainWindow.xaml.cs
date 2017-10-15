@@ -121,6 +121,9 @@ namespace QAI
             creator = delegate { return new AIS.WeightedBruteSearch.WeightedBruteSearch(); };
             allAIs.Add(new AIDefinition(creator, "WeightedBruteSearch"));
 
+            creator = delegate { return new AIS.Irektu.Irekt(); };
+            allAIs.Add(new AIDefinition(creator, "MinMax Alpha Beta Pruning"));
+
             return allAIs;
         }        
     }

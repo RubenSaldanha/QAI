@@ -54,6 +54,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AIDefinition.cs" />
+    <Compile Include="AIS\Irektu\Irekt.cs" />
     <Compile Include="AIS\WeightedBruteSearch\WeightedBruteSearch.cs" />
     <Compile Include="AIS\WeightedBruteSearch\WeightedBruteSearchControl.xaml.cs">
       <DependentUpon>WeightedBruteSearchControl.xaml</DependentUpon>
